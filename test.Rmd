@@ -6,9 +6,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(dplyr)
 library(janitor)
 library(haven)
+library(expss)
+library(dplyr)
 
 dataset = read_sav("ATP_W53.sav")
 
@@ -17,15 +18,31 @@ dataset = read_sav("ATP_W53.sav")
 For this project I have decided to take the Pew Research Center's evaluation of American opinions and make them visually captivating through the application of colorful data.
 
 
-# Opinion
+## Opinion
 
-```{r approve, echo=FALSE}
+```{r opinion, echo=FALSE}
 dataset %>%
   filter(POL1DT_W53 %in% c("1", "2")) %>%
-  mutate(POL1DT_W53 = ifelse(POL1DT_W53 == "1","Yes","No")) %>%
+  mutate(POL1DT_W53 = as_factor(POL1DT_W53)) %>%
   ggplot(aes(x = POL1DT_W53, fill = POL1DT_W53)) + geom_bar() +
   scale_fill_discrete(name = "Opinion") +
   labs(title = "Do you approve or disapprove of the way Donald Trump \n is handling his job as President?",
+       caption = "2019 Pew Research Center's American Trends Panel \n Wave 53 September 2019") +
+  xlab("Opinion") +
+  ylab("Count") +
+  theme_classic()
+```
+
+## Approval
+```{r approve, echo=FALSE}
+dataset %>%
+  select(POL1DT_W53, POL1DTSTR_W53) %>%
+  filter(POL1DTSTR_W53 %in% c("1", "2")) %>%
+  mutate(POL1DT_W53 = as_factor(POL1DT_W53),
+         POL1DTSTR_W53 = as_factor(POL1DTSTR_W53)) %>%
+  ggplot(aes(x = POL1DT_W53, fill = POL1DTSTR_W53)) + geom_bar() +
+  scale_fill_discrete(name = "Approval") +
+  labs(title = "Do you approve/disapprove of the way Donald Trump \n is handling his job as President?",
        caption = "2019 Pew Research Center's American Trends Panel \n Wave 53 September 2019") +
   xlab("Opinion") +
   ylab("Count") +

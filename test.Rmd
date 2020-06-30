@@ -1,0 +1,33 @@
+---
+title: "American Opinion of Donald Trump"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(haven)
+
+dataset = read_sav("ATP_W53.sav")
+
+```
+
+For this project I have decided to take the Pew Research Center's evaluation of American opinions and make them visually captivating through the application of colorful data.
+
+
+# Opinion
+
+```{r approve, echo=FALSE}
+dataset %>%
+  filter(POL1DT_W53 %in% c("1", "2")) %>%
+  mutate(POL1DT_W53 = ifelse(POL1DT_W53 == "1","Yes","No")) %>%
+  ggplot(aes(x = POL1DT_W53, fill = POL1DT_W53)) + geom_bar() +
+  scale_fill_discrete(name = "Opinion") +
+  labs(title = "Do you approve or disapprove of the way Donald Trump \n is handling his job as President?",
+       caption = "2019 Pew Research Center's American Trends Panel \n Wave 53 September 2019") +
+  xlab("Opinion") +
+  ylab("Count") +
+  theme_classic()
+```

@@ -11,40 +11,86 @@ library(haven)
 library(expss)
 library(dplyr)
 
-dataset = read_sav("ATP_W53.sav")
+dataset = read_sav("ATP_W53.sav") 
+
+poll <- haven::as_factor(dataset)
 
 ```
 
-For this project I have decided to take the Pew Research Center's evaluation of American opinions and make them visually captivating through the application of colorful data.
+For this project I have decided to take the Pew Research Center's evaluation of American opinions and make datapoints more visually captivating.
 
 
 ## Opinion
 
 ```{r opinion, echo=FALSE}
-dataset %>%
-  filter(POL1DT_W53 %in% c("1", "2")) %>%
-  mutate(POL1DT_W53 = as_factor(POL1DT_W53)) %>%
+poll %>%
   ggplot(aes(x = POL1DT_W53, fill = POL1DT_W53)) + geom_bar() +
-  scale_fill_discrete(name = "Opinion") +
+  scale_fill_manual(values=c("#01BFC4", "#F8766D", "grey"),
+                    name = "Opinion") +
   labs(title = "Do you approve or disapprove of the way Donald Trump \n is handling his job as President?",
        caption = "2019 Pew Research Center's American Trends Panel \n Wave 53 September 2019") +
   xlab("Opinion") +
   ylab("Count") +
-  theme_classic()
+  theme_classic() +
+  theme(axis.text.x = element_blank())
+
 ```
 
 ## Approval
 ```{r approve, echo=FALSE}
-dataset %>%
+poll %>%
   select(POL1DT_W53, POL1DTSTR_W53) %>%
-  filter(POL1DTSTR_W53 %in% c("1", "2")) %>%
-  mutate(POL1DT_W53 = as_factor(POL1DT_W53),
-         POL1DTSTR_W53 = as_factor(POL1DTSTR_W53)) %>%
+  filter(POL1DT_W53 != "Refused" & POL1DTSTR_W53 != "Refused") %>%
+  na.omit() %>%
   ggplot(aes(x = POL1DT_W53, fill = POL1DTSTR_W53)) + geom_bar() +
-  scale_fill_discrete(name = "Approval") +
+  scale_fill_manual(values=c("#F8766D","#01BFC4"),
+                    name = "Approval") +
   labs(title = "Do you approve/disapprove of the way Donald Trump \n is handling his job as President?",
        caption = "2019 Pew Research Center's American Trends Panel \n Wave 53 September 2019") +
   xlab("Opinion") +
   ylab("Count") +
   theme_classic()
 ```
+
+NA values were omitted for this chart.
+
+## Future generations
+```{r future, echo=FALSE}
+poll %>%
+  filter(!is.na(FUTGEN_W53)) %>%
+  ggplot(aes(x = FUTGEN_W53, fill = FUTGEN_W53)) + geom_bar() +
+  scale_fill_discrete(name = "Future Life") +
+  labs(title = "Do you think life for future generations of Americans will be ?",
+       caption = "2019 Pew Research Center's American Trends Panel \n Wave 53 September 2019") +
+  xlab("Opinion") +
+  ylab("Count") +
+  theme_classic() +
+  theme(axis.text.x = element_blank())
+  
+```
+
+## Community
+```{r community, echo=FALSE}
+community <- poll %>%
+  select(COMMIMP_a_W53:COMMIMP_d_W53) %>%
+  rename("That is a good place\n to raise children" = COMMIMP_a_W53,
+         "That is racially \nand ethnically \ndivserse" = COMMIMP_b_W53,
+         "Where most people \nshare your political \nviews" = COMMIMP_c_W53,
+         "Where most people \nshare your religious \nviews" = COMMIMP_d_W53) %>%
+  pivot_longer(cols = 1:4) %>%
+  na.omit() %>%
+  group_by(name, value) 
+
+
+community %>%
+  ggplot(aes(x = name, fill = value)) + geom_bar()+
+  labs(title = "How important is it to you, personally, to live in a community...",
+       caption = "2019 Pew Research Center's American Trends Panel \n Wave 53 September 2019") +
+  scale_fill_discrete(name = "Importance") +
+  xlab("Opinion") +
+  ylab("Count") +
+  theme_classic() 
+
+```
+
+NA values were omitted for this chart.

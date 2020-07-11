@@ -10,6 +10,7 @@ library(janitor)
 library(haven)
 library(expss)
 library(dplyr)
+library(ggpubr)
 
 dataset = read_sav("ATP_W53.sav") 
 
@@ -94,3 +95,35 @@ community %>%
 ```
 
 NA values were omitted for this chart.
+
+```{r party, echo=FALSE}
+republicans <- poll %>%
+  select(RLEADAPP_W53, DLEADAPP_W53) %>%
+  na.omit() %>%
+  ggplot(aes(x = RLEADAPP_W53, fill = RLEADAPP_W53)) + geom_bar() +
+  scale_fill_manual(values=c("#01BFC4", "#F8766D", "grey"),
+                    name = "Opinion") +
+  labs(title = "Do you approve or disapprove of the way the \n Republican leaders of Congress are doing?") +
+  xlab("Opinion") +
+  ylab("Count") +
+  theme_classic() +
+  theme(axis.text.x = element_blank(),
+        legend.position = "none") 
+
+democrats <- poll %>%
+  select(DLEADAPP_W53) %>%
+  na.omit() %>%
+  ggplot(aes(x = DLEADAPP_W53, fill = DLEADAPP_W53)) + geom_bar() +
+  scale_fill_manual(values=c("#01BFC4", "#F8766D", "grey"),
+                    name = "Opinion") +
+  labs(title = "Do you approve or disapprove of the way the \n Democratic leaders in Congress are doing?") +
+  xlab("Opinion") +
+  ylab("Count") +
+  theme_classic() +
+  theme(axis.text.x = element_blank(),
+        legend.position = "none") 
+
+party_approval <- ggarrange(republicans, democrats, common.legend = TRUE, legend = "bottom")
+
+party_approval
+```
